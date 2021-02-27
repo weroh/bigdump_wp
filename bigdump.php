@@ -38,10 +38,21 @@ error_reporting(E_ALL);
 
 // Database configuration
 
-$db_server   = 'localhost';
-$db_name     = '';
-$db_username = '';
-$db_password = ''; 
+// This hack dynamically loads a wp-config.php file without loading Wordpress
+$config_php = file_get_contents('wp-config.php');
+$config_php = str_replace('require', '//require', $config_php);
+$config_php = str_replace('<' . '?php', '', $config_php);
+$config_php = str_replace('?' . '>', '', $config_php);
+
+// Run PHP and hope there's nothing malicious in it
+eval($config_php);
+
+$db_server   = DB_HOST;
+$db_name     = DB_NAME;
+$db_username = DB_USER;
+$db_password = DB_PASSWORD;
+
+// Continue running BigDump
 
 // Connection charset should be the same as the dump file charset (utf8, latin1, cp1251, koi8r etc.)
 // See http://dev.mysql.com/doc/refman/5.0/en/charset-charsets.html for the full list
@@ -53,7 +64,7 @@ $db_connection_charset = 'utf8';
 
 $filename           = '';     // Specify the dump filename to suppress the file selection dialog
 $ajax               = true;   // AJAX mode: import will be done without refreshing the website
-$linespersession    = 3000;   // Lines to be executed per one import session
+$linespersession    = 5000;   // Lines to be executed per one import session
 $delaypersession    = 0;      // You can specify a sleep time in milliseconds after each session
                               // Works only if JavaScript is activated. Use to reduce server overrun
 
@@ -90,7 +101,7 @@ $string_quotes = '\'';                  // Change to '"' if your dump file uses 
 
 // How many lines may be considered to be one query (except text lines)
 
-$max_query_lines = 300;
+$max_query_lines = 60000;
 
 // Where to put the upload files into (default: bigdump folder)
 
